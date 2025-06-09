@@ -208,7 +208,7 @@ Escribe una cadena de caracteres terminada en '$' en la consola de MS-DOS.
 
 ```nasm
 ; Definir la cadena de caracteres que será escrita en consola
-cadena DB 'Hola mundo$',0  ; Cadena a escribir, terminada con '$'
+cadena DB 'Hola mundo$'  ; Cadena a escribir, terminada con '$'
 
 ; Cargar los valores en los registros para la interrupción
 MOV AH, 09h

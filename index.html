@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes"
+    />
+    <meta name="theme-color" content="#4F7DC9" />
+    <meta charset="UTF-8" />
+    <title>Laboratorio 05: Interrupciones de modo texto</title>
+    <link
+      rel="stylesheet"
+      href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono"
+    />
+    <link
+      rel="stylesheet"
+      href="//fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <link
+      rel="stylesheet"
+      href="https://storage.googleapis.com/claat-public/codelab-elements.css"
+    />
+    <style>
+      .success {
+        color: #1e8e3e;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <google-codelab-analytics
+      gaid="UA-49880327-14"
+      ga4id=""
+    ></google-codelab-analytics>
+    <google-codelab
+      codelab-gaid=""
+      codelab-ga4id=""
+      id="laboratorio-05-arquitectura"
+      title="Laboratorio 05: Interrupciones de modo texto"
+      environment="web"
+      feedback-link=""
+    >
+      <google-codelab-step label="Objetivos" duration="0">
+        <ol type="1">
+          <li>
+            <strong
+              >Comprender el uso de interrupciones del BIOS para controlar el
+              modo de texto:</strong
+            >
+            Aprender a activar y manejar el modo de texto en una aplicación DOS
+            mediante interrupciones específicas del BIOS.
+          </li>
+          <li>
+            <strong
+              >Gestionar la visualización y navegación entre diferentes páginas
+              de texto:</strong
+            >
+            Practicar cómo cambiar entre múltiples páginas de texto utilizando
+            interrupciones del BIOS para mostrar diferentes mensajes en
+            distintas etapas del programa.
+          </li>
+        </ol>
+      </google-codelab-step>
+
+      <google-codelab-step
+        label="Introducción a las Interrupciones"
+        duration="0"
+      >
+        <p>
+          Las interrupciones son un mecanismo fundamental en la arquitectura de
+          las computadoras, diseñadas para mejorar la eficiencia y la capacidad
+          de respuesta del sistema. En términos simples, una interrupción es una
+          señal que recibe el procesador para indicar que un evento o una acción
+          debe ser tratada de inmediato, suspendiendo temporalmente el flujo de
+          trabajo actual del programa principal para ejecutar una rutina de
+          servicio de interrupción (ISR).
+        </p>
+        <h2 is-upgraded>Propósito de las Interrupciones</h2>
+        <p>
+          El propósito principal de las interrupciones es permitir que el
+          procesador responda a eventos tanto internos como externos de manera
+          rápida y eficiente. Estos eventos pueden incluir la finalización de
+          una operación de entrada/salida, un error de hardware, o una solicitud
+          de atención inmediata por parte del software.
+        </p>
+        <h2 is-upgraded>Tipos de Interrupciones</h2>
+        <p>Las interrupciones se clasifican generalmente en dos categorías:</p>
+        <ol type="1">
+          <li>
+            <strong>Interrupciones de Hardware</strong>: Son generadas por el
+            hardware externo, como periféricos, para comunicar que necesitan
+            atención. Un ejemplo común es la interrupción generada por un
+            teclado cuando se presiona una tecla.
+          </li>
+          <li>
+            <strong>Interrupciones de Software</strong>: También conocidas como
+            excepciones, son generadas por el software, usualmente por el
+            sistema operativo, para gestionar situaciones especiales como
+            errores de división por cero, accesos inválidos a la memoria, o
+            solicitudes de servicios del sistema operativo a través de llamadas
+            al sistema.
+          </li>
+        </ol>
+        <h2 is-upgraded>Flujo de una Interrupción</h2>
+        <p>
+          Cuando se genera una interrupción, el flujo típico de procesamiento es
+          el siguiente:
+        </p>
+        <ol type="1">
+          <li>El procesador suspende la ejecución del programa actual.</li>
+          <li>
+            Se guarda el estado actual del programa (por ejemplo, los registros)
+            para asegurar que puede reanudarse después sin pérdida de
+            información.
+          </li>
+          <li>
+            Se ejecuta una rutina de servicio de interrupción específica, que
+            está diseñada para tratar el tipo de interrupción que se ha
+            producido.
+          </li>
+          <li>
+            Una vez completada la rutina, el estado del programa se restaura y
+            la ejecución del programa principal se reanuda como si nunca hubiera
+            sido interrumpida.
+          </li>
+        </ol>
+        <h2 is-upgraded>Importancia en la Programación en Ensamblador</h2>
+        <p>
+          En la programación en ensamblador, las interrupciones son
+          especialmente relevantes porque permiten a los programadores gestionar
+          directamente y con gran detalle cómo y cuándo el procesador debe
+          responder a distintos tipos de solicitudes y eventos, otorgando un
+          control preciso sobre la ejecución del hardware.
+        </p>
+        <p>
+          Esta introducción establece una base para entender cómo las
+          interrupciones en modo texto utilizan estos principios para operar
+          eficientemente dentro de un sistema computacional. A continuación,
+          profundizaremos en las interrupciones específicas en modo texto y su
+          aplicación práctica.
+        </p>
+      </google-codelab-step>
+
+      <google-codelab-step label="Interrupciones en modo texto" duration="0">
+        <h2 is-upgraded>➡️ INT 10h / 00h – Establecer modo texto o video</h2>
+        <p>
+          Inicia el modo texto o video, dependiendo del argumento que se indique
+          en el registro AL.
+        </p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 00h. Selecciona la función para establecer el
+            modo texto o video.
+          </li>
+          <li>
+            <strong>AL:</strong> Define el modo específico (00h para modo texto
+            de 40x25, 03h para 80x25, 13h para modo gráfico).
+          </li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 00h
+MOV AL, 03h       ; Modo texto 80x25
+INT 10h           ; Ejecutar interrupción
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 01h – Establecer forma del cursor</h2>
+        <p>
+          Modifica la apariencia del cursor en pantalla, estableciendo sus
+          límites superior e inferior.
+        </p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 01h. Función para definir la forma del cursor.
+          </li>
+          <li>
+            <strong>CH:</strong> Parte superior del cursor. Define la línea de
+            inicio.
+          </li>
+          <li>
+            <strong>CL:</strong> Parte inferior del cursor. Define la línea
+            final.
+          </li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 01h
+MOV CH, 0         ; Línea de inicio del cursor
+MOV CL, 7         ; Línea final del cursor
+INT 10h           ; Ejecutar interrupción
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 02h – Establecer posición del cursor</h2>
+        <p>
+          Mueve el cursor a la posición especificada por las coordenadas de fila
+          (DH) y columna (DL).
+        </p>
+        <ul>
+          <li><strong>AH:</strong> 02h. Función para mover el cursor.</li>
+          <li>
+            <strong>BH:</strong> Número de página (usualmente 0, pero se puede
+            usar hasta la página 7).
+          </li>
+          <li><strong>DH:</strong> Fila deseada.</li>
+          <li><strong>DL:</strong> Columna deseada.</li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 02h
+MOV BH, 0
+MOV DH, 10        ; Fila
+MOV DL, 20        ; Columna
+INT 10h           ; Ejecutar interrupción
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 03h – Leer posición actual del cursor</h2>
+        <p>
+          Obtiene la posición actual del cursor en términos de fila y columna.
+        </p>
+        <p><strong>Argumentos de entrada:</strong></p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 03h. Función para obtener la posición actual
+            del cursor.
+          </li>
+          <li><strong>BH:</strong> Número de página (usualmente 0).</li>
+        </ul>
+        <p><strong>Argumentos de salida:</strong></p>
+        <ul>
+          <li><strong>DH:</strong> Fila</li>
+          <li><strong>DL:</strong> Columna</li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 03h
+MOV BH, 0
+INT 10h           ; Ejecutar interrupción
+; Los valores de posición se retornarán en DH (fila) y DL (columna)
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 05h – Establecer página activa</h2>
+        <p>Cambia la página visual actual en la pantalla de modo texto.</p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 05h. Selecciona la página visual en pantalla.
+          </li>
+          <li><strong>AL:</strong> Número de página.</li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 05h
+MOV AL, 0         ; Número de página
+INT 10h           ; Ejecutar interrupción
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 08h – Leer carácter y su atributo</h2>
+        <p>Lee el carácter y su atributo en la posición actual del cursor.</p>
+        <p><strong>Argumentos de entrada:</strong></p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 08h. Lee el carácter y su atributo en la
+            posición actual del cursor.
+          </li>
+          <li>
+            <strong>BH:</strong> Número de página (usualmente 0, pero se puede
+            usar hasta la página 7).
+          </li>
+        </ul>
+        <p><strong>Argumentos de salida:</strong></p>
+        <ul>
+          <li><strong>AH:</strong> Atributo leído</li>
+          <li><strong>AL:</strong> Carácter leído</li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 08h
+MOV BH, 0
+INT 10h           ; Ejecutar interrupción
+; El carácter leído se retorna en AL y el atributo en AH
+</code></pre>
+        <h2 is-upgraded>➡️ INT 10h / 09h – Escribir carácter y su atributo</h2>
+        <p>
+          Escribe un carácter con un atributo de color específico en la posición
+          actual del cursor, repitiéndolo según se especifique.
+        </p>
+        <p>
+          El &#34;atributo&#34; de un carácter es un byte que usan las
+          instrucciones de BIOS para determinar el color del fondo y el frente
+          del carácter que se desea mostrar en pantalla. Este byte se divide en
+          dos partes, desde el bit 0 hasta el 3 para definir el color del frente
+          y desde el bit 4 hasta el 7 para el del fondo. Este byte se pone en un
+          registro antes de llamar la interrupción, por lo general es en BL. De
+          la siguiente manera:
+        </p>
+        <p class="image-container">
+          <img alt="Colors" src="img/f9d1fef1161584da.png" />
+        </p>
+        <p>
+          Esta configuración de IRGB, se refiere a Intensidad, Rojo, Verde y
+          Azul, puede representar 16 colores de la siguiente manera:
+        </p>
+        <p class="image-container">
+          <img alt="Untitled" src="img/760ea6abbfd8024d.png" />
+        </p>
+        <p>Esta interrupción se utiliza de la siguiente manera:</p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 09h. Escribe un carácter y su atributo en la
+            posición actual del cursor.
+          </li>
+          <li><strong>AL:</strong> Código ASCII del carácter.</li>
+          <li><strong>BH:</strong> Número de página (0 hasta 7).</li>
+          <li><strong>BL:</strong> Atributo del carácter.</li>
+          <li>
+            <strong>CX:</strong> Número de veces que se repetirá el carácter.
+          </li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 09h
+MOV AL, &#39;A&#39;
+MOV BH, 0
+MOV BL, 07h       ; Atributo (color)
+MOV CX, 1         ; Repetir una vez
+INT 10h           ; Ejecutar interrupción
+</code></pre>
+        <h2 is-upgraded>➡️ INT 16h / 00h – Leer carácter desde el teclado</h2>
+        <p>
+          Retorna el siguiente carácter en el buffer del teclado; Si no hay uno
+          disponible, espera a que aparezca uno.
+        </p>
+        <p><strong>Argumentos de entrada:</strong></p>
+        <ul>
+          <li>
+            <strong>AH</strong>: 00h. Indica que se desea leer el carácter.
+          </li>
+        </ul>
+        <p><strong>Argumentos de salida:</strong></p>
+        <ul>
+          <li><strong>AH</strong>: BIOS scan code de la tecla presionada.</li>
+          <li>
+            <strong>AL</strong>: Carácter ASCII correspondiente a la tecla
+            presionada.
+          </li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">MOV AH, 00h         ; Establece la función para leer el carácter
+INT 16h             ; Llama a la interrupción del teclado
+; AH ahora contiene el código de escaneo del BIOS
+; AL ahora contiene el carácter ASCII leído
+</code></pre>
+        <h2 is-upgraded>
+          ➡️ INT 21h / 09h – Escribir cadena de caracteres en la consola
+        </h2>
+        <p>
+          Escribe una cadena de caracteres terminada en ‘$&#39; en la consola de
+          MS-DOS.
+        </p>
+        <ul>
+          <li>
+            <strong>AH:</strong> 09h. Función para escribir una cadena de texto
+            en la consola.
+          </li>
+          <li>
+            <strong>DX:</strong> Dirección de la memoria donde inicia la cadena
+            de texto (debe terminar con ‘$&#39;).
+          </li>
+        </ul>
+        <pre><code language="language-nasm" class="language-nasm">; Definir la cadena de caracteres que será escrita en consola
+cadena DB &#39;Hola mundo$&#39;,0  ; Cadena a escribir, terminada con &#39;$&#39;
+
+; Cargar los valores en los registros para la interrupción
+MOV AH, 09h
+MOV DX, cadena        ; Carga la dirección de inicio de la cadena en el registro DX
+INT 21h               ; Ejecutar interrupción
+</code></pre>
+      </google-codelab-step>
+
+      <google-codelab-step label="Ejemplo práctico" duration="0">
+        <p>
+          Este programa en Assembler, diseñado para ejecutarse en un entorno
+          DOS, demuestra cómo comparar un número predefinido con el valor 5 y
+          visualizar mensajes apropiados en el modo texto según el resultado de
+          la comparación (mayor, menor o igual). El ejercicio involucra
+          inicializar el modo de texto, posicionar el cursor, gestionar la
+          visualización de mensajes en diferentes páginas de texto, y esperar la
+          interacción del usuario mediante teclas. Este enfoque ayuda a los
+          estudiantes a entender la manipulación de la pantalla y la entrada
+          desde el teclado en la programación a nivel de sistema.
+        </p>
+        <h2 is-upgraded>1. Configuración Inicial y Declaración de Datos:</h2>
+        <pre><code language="language-nasm" class="language-nasm">org   100h
+
+section .data
+msgMayor db &#39;El digito es mayor que 5$&#39;
+msgMenor db &#39;El digito es menor que 5$&#39;
+msgIgual db &#39;El digito es igual a 5$&#39;
+msgFin db &#39;Fin del programa$&#39;
+</code></pre>
+        <ul>
+          <li>
+            <strong>Directiva </strong><strong><code>org 100h</code></strong
+            >: Define el punto de inicio del programa en la memoria,
+            específicamente para un archivo COM en DOS.
+          </li>
+          <li>
+            <strong>Sección </strong><strong><code>.data</code></strong
+            >: Declara los mensajes que se mostrarán basados en el resultado de
+            la comparación del número con 5, y al final del programa.
+          </li>
+        </ul>
+        <h2 is-upgraded>2. Flujo Principal del Programa:</h2>
+        <pre><code language="language-nasm" class="language-nasm">section .text
+
+main:
+    CALL IniciarModoTexto
+    
+    MOV BH, 0d ; Establece la página 0
+    CALL CentrarCursor
+    
+    CALL CompararNumero
+    
+    CALL EsperarTecla
+    
+    CALL CambiarPagina
+    
+    MOV BH, 1d ; Cambia a la página 1
+    CALL CentrarCursor
+    
+    CALL ImprimirFin
+    
+    CALL EsperarTecla
+    
+    INT 20h
+</code></pre>
+        <ul>
+          <li>
+            <strong><code>IniciarModoTexto</code></strong
+            >: Configura el modo de texto 80x25.
+          </li>
+          <li>
+            <strong><code>CentrarCursor</code></strong
+            >: Posiciona el cursor en el centro de la pantalla.
+          </li>
+          <li>
+            <strong><code>CompararNumero</code></strong
+            >: Realiza la comparación del número almacenado en
+            <code>AL</code> con 5.
+          </li>
+          <li>
+            <strong><code>EsperarTecla</code></strong
+            ><strong> y </strong><strong><code>CambiarPagina</code></strong
+            >: Espera la presión de una tecla y cambia la página del modo texto
+            para mostrar nuevos mensajes.
+          </li>
+          <li>
+            <strong><code>ImprimirFin</code></strong
+            >: Muestra el mensaje de finalización del programa.
+          </li>
+        </ul>
+        <h2 is-upgraded>3. Subrutinas Detalladas:</h2>
+        <ul>
+          <li>
+            <strong>IniciarModoTexto</strong>:
+            <pre><code language="language-nasm" class="language-nasm">IniciarModoTexto:
+    MOV AH, 0h
+    MOV AL, 03h ; Establece modo texto 80x25
+    int 10h ; Llama a la interrupción del BIOS para cambiar el modo texto
+    RET
+</code></pre>
+            Configura el modo de texto con 80 columnas y 25 filas.
+          </li>
+          <li>
+            <strong>CentrarCursor</strong>:
+            <pre><code language="language-nasm" class="language-nasm">CentrarCursor:
+    MOV AH, 02h
+    MOV DH, 10 ; Fila central
+    MOV DL, 25 ; Columna central
+    int 10h ; Llama a la interrupción del BIOS para posicionar el cursor
+    RET
+</code></pre>
+            Posiciona el cursor en la fila 10, columna 25, aproximadamente en el
+            centro.
+          </li>
+          <li>
+            <strong>CambiarPagina</strong>:
+            <pre><code language="language-nasm" class="language-nasm">CambiarPagina:
+    MOV AH, 05h
+    MOV AL, 01H ; Cambia a la página 1
+    INT 10h
+    RET
+</code></pre>
+            Cambia a la página 1 del modo texto para mostrar mensajes
+            adicionales.
+          </li>
+          <li>
+            <strong>CompararNumero</strong>:
+            <pre><code language="language-nasm" class="language-nasm">CompararNumero:
+    MOV AL, 5d
+    CMP AL, 5
+    JA mayor
+    JB menor
+    JE igual
+    RET
+</code></pre>
+            Carga el número 5 en <code>AL</code>, compara con 5, y salta a las
+            etiquetas correspondientes según si es mayor, menor o igual.
+          </li>
+          <li>
+            <strong>EsperarTecla</strong>:
+            <pre><code language="language-nasm" class="language-nasm">EsperarTecla:
+    MOV AH, 00h
+    INT 16h
+    RET
+</code></pre>
+            Espera una tecla, utilizando la interrupción del teclado
+            <code>INT 16h</code>.
+          </li>
+          <li>
+            <strong>Manejo de Resultados de Comparación (</strong
+            ><strong><code>mayor</code></strong
+            ><strong>, </strong><strong><code>menor</code></strong
+            ><strong>, </strong><strong><code>igual</code></strong
+            ><strong>)</strong>: Utiliza <code>INT 21h</code> con
+            <code>AH = 09h</code> para mostrar mensajes según el resultado de la
+            comparación.
+            <pre><code language="language-nasm" class="language-nasm">mayor:
+    MOV AH, 09h
+    MOV DX, msgMayor
+    INT 21h
+    RET
+menor:
+    MOV AH, 09h
+    MOV DX, msgMenor
+    INT 21h
+    RET
+igual:
+    MOV AH, 09h
+    MOV DX, msgIgual
+    INT 21h
+    RET
+</code></pre>
+          </li>
+          <li>
+            <strong>ImprimirFin</strong>:
+            <pre><code language="language-nasm" class="language-nasm">ImprimirFin:
+    MOV AH, 09h
+    MOV DX, msgFin
+    INT 21h
+    RET
+</code></pre>
+            Muestra &#34;Fin del programa&#34; en la página 1.
+          </li>
+        </ul>
+        <aside class="special">
+          <p>
+            💡 Verificar el funcionamiento del programa cambiando el valor a
+            comparar con un número mayor a 5 y con un número menor a 5.
+          </p>
+        </aside>
+      </google-codelab-step>
+
+      <google-codelab-step label="Indicaciones de entrega" duration="0">
+        <ul>
+          <li>
+            La entrega se realizará a través de GitHub Classroom, en el
+            repositorio asignado para las
+            <a href="https://classroom.github.com/a/p3Yq-RKA" target="_blank"
+              >prácticas de laboratorio</a
+            >.
+          </li>
+          <li>
+            Crear una carpeta llamada &#34;<code>Laboratorio-05</code>&#34;
+            dentro del repositorio. Esta carpeta será el contenedor para los
+            archivos de esta práctica.
+          </li>
+          <li>
+            Dentro de la carpeta &#34;<code>Laboratorio-05</code>&#34;, crear un
+            archivo llamado <strong><code>desarrollo.asm</code></strong
+            >. En este archivo, colocar todos los ejemplos y ejercicios
+            desarrollados durante la práctica de laboratorio.
+          </li>
+          <li>
+            Crear un segundo archivo llamado
+            <strong><code>tarea.asm</code></strong> dentro de la carpeta
+            &#34;<code>Laboratorio-05</code>&#34;. Este archivo debe contener la
+            solución a la tarea propuesta.
+          </li>
+        </ul>
+        <pre><code>└── Laboratorio-05
+    ├── desarrollo.asm
+    └── tarea.asm
+</code></pre>
+        <ul>
+          <li>
+            Realizar dos commits separados:
+            <ul>
+              <li>
+                <strong>Primer Commit:</strong> Subir el archivo
+                <strong><code>desarrollo.asm</code></strong> una vez completado
+                el desarrollo durante la práctica.
+              </li>
+              <li>
+                <strong>Segundo Commit:</strong> Subir el archivo
+                <strong><code>tarea.asm</code></strong> una vez completada la
+                tarea propuesta.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Copiar el enlace de su repositorio en el entregable llamado
+            &#34;[Nota] Laboratorio 04 - Instrucciones de salto y
+            comparación&#34; correspondiente a la práctica de laboratorio que
+            está colocado en el e-campus.
+          </li>
+        </ul>
+      </google-codelab-step>
+
+      <google-codelab-step label="Rúbrica" duration="0">
+        <table>
+          <tr>
+            <td colspan="1" rowspan="1"><p>Criterio</p></td>
+            <td colspan="1" rowspan="1"><p>Porcentaje</p></td>
+          </tr>
+          <tr>
+            <td colspan="1" rowspan="1"><p>Desarrollo</p></td>
+            <td colspan="1" rowspan="1"><p>50%</p></td>
+          </tr>
+          <tr>
+            <td colspan="1" rowspan="1"><p>Tarea</p></td>
+            <td colspan="1" rowspan="1"><p>40%</p></td>
+          </tr>
+          <tr>
+            <td colspan="1" rowspan="1"><p>Ayuda necesitada</p></td>
+            <td colspan="1" rowspan="1"><p>10%</p></td>
+          </tr>
+          <tr>
+            <td colspan="1" rowspan="1">
+              <p><strong>Total</strong></p>
+            </td>
+            <td colspan="1" rowspan="1">
+              <p><strong>100%</strong></p>
+            </td>
+          </tr>
+        </table>
+      </google-codelab-step>
+    </google-codelab>
+
+    <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+    <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+    <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+    <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+    <script src="//support.google.com/inapp/api.js"></script>
+    <script>
+      const fabs = document.querySelector("#fabs");
+      const done = document.querySelector("#done");
+      const codelabNavButtons = document.querySelector("#codelab-nav-buttons");
+      const arrowBack = document.querySelector("#arrow-back");
+      fabs.removeChild(done);
+      codelabNavButtons.removeChild(arrowBack);
+    </script>
+  </body>
+</html>

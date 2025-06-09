@@ -1,0 +1,25 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2025-06-09T00:39:00-06:00",
+  "id": "laboratorio-05-interrupciones-modo-texto",
+  "duration": 0,
+  "title": "Laboratorio 05: Interrupciones de modo texto",
+  "authors": "Ing. Gabriela Reynosa, Erika Paz, Kevin Escobar",
+  "summary": "Laboratorio 05 - Interrupciones de Modo Texto",
+  "source": "codelab.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "ensamblador",
+    "direccionamiento",
+    "thinkercad",
+    "laboratorio"
+  ],
+  "tags": [],
+  "url": "laboratorio-05-interrupciones-modo-texto"
+}

@@ -1,5 +1,5 @@
 summary: Laboratorio 05 - Interrupciones de Modo Texto
-id: laboratorio-05-interrupciones-modo-texto
+id: laboratorio-05-arquitectura
 categories: Ensamblador, Direccionamiento, Thinkercad, Laboratorio
 status: Published
 authors: Ing. Gabriela Reynosa, Erika Paz, Kevin Escobar
